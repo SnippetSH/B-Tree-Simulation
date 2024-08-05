@@ -30,32 +30,69 @@ tree = lib.MakeBtree()
 print(type(tree))
 
 # 값 삽입
-lib.Insert(tree, 10, b"100")  # Note the b prefix to convert to byte string
-lib.Insert(tree, 20, b"200")  # Note the b prefix to convert to byte string
-lib.Insert(tree, 30, b"200")
-lib.Insert(tree, 40, b"200")
-lib.Insert(tree, 50, b"200")
-lib.Insert(tree, 60, b"200")
-lib.Insert(tree, 70, b"200")
-lib.Insert(tree, 80, b"200")
-lib.Insert(tree, 90, b"200")
-lib.Insert(tree, 100, b"200")
-lib.Insert(tree, 110, b"200")
-lib.Insert(tree, 120, b"200")
-lib.Insert(tree, 130, b"200")
-lib.Insert(tree, 140, b"200")
-lib.Insert(tree, 150, b"200")
-lib.Insert(tree, 160, b"200")
-lib.Insert(tree, 170, b"200")
-lib.Insert(tree, 180, b"200")
-lib.Insert(tree, 190, b"200")
-lib.Insert(tree, 200, b"200")
+for i in range(1, 101):
+    lib.Insert(tree, i, b"11")
 
 #lib.Delete(tree, 10)
 
 # 트리 순회 및 출력 가져오기
 result = lib.TraverseBtree(tree)
-print(result.decode('utf-8'))
+decoded_result = result.decode('utf-8')
+print(decoded_result)
+print(type(decoded_result))
+
+# 출력된 결과를 줄 단위로 분리
+lines = decoded_result.splitlines()
+
+d = []
+
+for line in lines:
+    parts = line.split()
+    d.append(int(parts[0]))
+
+n = max(d)
+
+# 결과를 저장할 딕셔너리
+result = {i+1: [] for i in range(n)}
+
+# 임시 리스트를 depth별로 동적으로 생성
+temp_lists = {i: [] for i in range(2, n+1)}
+
+current_depth = None
+
+for line in lines:
+    parts = line.split()
+    depth = int(parts[0])
+    key = int(parts[2])
+    
+    if depth == 1:
+        # depth 1이 나오면 모든 임시 리스트를 결과에 추가
+        for depth_level in range(3, n+1):
+            if temp_lists[depth_level]:
+                result[depth_level].append(temp_lists[depth_level])
+                temp_lists[depth_level] = []
+        if temp_lists[2]:
+            result[2].append(temp_lists[2])
+            temp_lists[2] = []
+        result[1].append([key])
+    else:
+        if current_depth and depth < current_depth:
+            for depth_level in range(depth + 1, n + 1):
+                if temp_lists[depth_level]:
+                    result[depth_level].append(temp_lists[depth_level])
+                    temp_lists[depth_level] = []
+        temp_lists[depth].append(key)
+    
+    current_depth = depth
+
+# 마지막 남은 임시 리스트 처리
+for depth_level in range(2, n+1):
+    if temp_lists[depth_level]:
+        result[depth_level].append(temp_lists[depth_level])
+
+# 결과 출력
+print(result)
+
 
 # 할당된 메모리 해제
 #lib.FreeString(result)
